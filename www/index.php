@@ -1,19 +1,21 @@
 <?php
 
 require_once './init.php';
+require_once './../config/config.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+use App\Routing\Router;
+
+#spl_autoload_register(function($class) {
+#    $path = str_replace('\\', '/', $class.'.php');
+#    echo "<br>Path: $path</br>";
+#    if (file_exists($path)) {
+#        require $path;
+#    }
+#});
 
 define('ROOT', dirname(__FILE__));
-$router_path = ROOT.'/../src/App/Routing/Router.php';
 
-if (file_exists($router_path)) {
-    require_once($router_path);
-    $router = new Router();
-    $router->run();
-}
-else {
-    echo "<p>Router not included</p>";
-    echo "<p>path: $router_path</p>";
-}
+session_start();
+
+$router = new Router();
+$router->run();
