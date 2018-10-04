@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: oli
- * Date: 03.09.18
- * Time: 18:41
- */
 
 namespace App\Routing;
+use App\Controllers;
+use App\Views\View;
 
 class Router
 {
@@ -25,21 +21,22 @@ class Router
     public function run()
     {
         if ($this->match()) {
-            $controller_name = ucfirst($this->_params['controller']) . 'Controller';
-            $controller_path = ROOT . '/../src/App/Controllers/' . $controller_name . '.php';
-            if (file_exists($controller_path)) {
-                require_once $controller_path;
+            $controller_name = "\App\Controllers\\" . ucfirst($this->_params['controller']) . 'Controller';
+            if (class_exists($controller_name)) {
                 $action = 'action' . ucfirst($this->_params['action']);
-                $controller = new $controller_name();
+                $controller = new $controller_name($this->_params);
 
                 $args =  explode('/', $this->getURI());
                 array_shift($args);
 
                 $controller->$action($args);
             }
+            else {
+                View::errorCode(500);
+            }
         }
         else {
-            echo "<br>404</br>";
+            View::errorCode(404);
         }
     }
 
@@ -58,6 +55,9 @@ class Router
     private function getURI() {
         if (!empty($_SERVER['REQUEST_URI'])) {
             return trim($_SERVER['REQUEST_URI'], '/');
+        }
+        else {
+            View::errorCode(404);
         }
     }
 }

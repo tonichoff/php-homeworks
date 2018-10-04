@@ -1,20 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: oli
- * Date: 04.09.18
- * Time: 15:19
- */
 
-class RegisterController
+namespace App\Controllers;
+
+class RegisterController extends Controller
 {
-    public function __construct()
-    {
-
-    }
-
     public function actionRegister($params)
     {
-        echo "<p>Action register was run</p>";
+        $this->_view->render('Регистрация');
     }
 }
