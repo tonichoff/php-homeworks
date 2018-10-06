@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'host' => 'localhost',
+    'host' => 'mysql',
     'dbname' => 'app',
     'user' => 'app',
     'password' => 'app',
-    'port' => 3306
+    'port' => '3306'
 ];

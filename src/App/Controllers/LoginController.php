@@ -2,13 +2,13 @@
 
 namespace App\Controllers;
 
-use App\DataBaseConnection\DataBaseConnection;
+use App\DataBase\DataBase;
 
 class LoginController extends Controller
 {
     public function actionLogin($parameters)
     {
         $this->_view->render('Вход');
-        $db = new DataBaseConnection();
+        $db = new DataBase();
     }
 }

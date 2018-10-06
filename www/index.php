@@ -11,3 +11,4 @@ session_start();
 
 $router = new Router();
 $router->run();
+response = $kernel->handleRequest($request);
