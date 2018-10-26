@@ -20,26 +20,25 @@ class View {
         if (file_exists($layout_path)) {
             $view_path = ROOT. '/../src/App/Views/' . $this->_path . '.php';
             if (file_exists($view_path)) {
-                require $view_path;
-                ob_start();
-                $content = ob_get_clean();
+                $content = $view_path;
                 require $layout_path;
             }
             else {
-                View::errorCode(500);
+                View::errorCode(500, "I didn't find view file");
             }
 
         }
         else {
-            View::errorCode(500);
+            View::errorCode(500, "I didn't find layout file");
         }
     }
 
-    public static function errorCode($code)
+    public static function errorCode($code, $message = 'Something goes wrong')
     {
         http_response_code($code);
         $path = ROOT . '/../src/App/Views/Errors/' . $code . '.php';
         if (file_exists($path)) {
+            $content = $message;
             require $path;
         }
         else {

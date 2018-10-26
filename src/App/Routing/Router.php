@@ -32,7 +32,7 @@ class Router
                 $controller->$action($args);
             }
             else {
-                View::errorCode(500);
+                View::errorCode(500, "I didn't find controller");
             }
         }
         else {
@@ -43,7 +43,7 @@ class Router
     private function match()
     {
         $uri = $this->getURI();
-        foreach ($this->_routes as $route => $params) {
+        foreach ($this->_routes[$_SERVER['REQUEST_METHOD']] as $route => $params) {
             if (preg_match('#^' . $route . '$#', $uri)) {
                 $this->_params = $params;
                 return true;
