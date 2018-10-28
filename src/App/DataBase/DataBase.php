@@ -4,7 +4,6 @@ namespace App\DataBase;
 
 use App\Views\View;
 use mysqli;
-use function PHPSTORM_META\type;
 
 class DataBase
 {
@@ -30,26 +29,37 @@ class DataBase
     public function query($action, $table, $values)
     {
         $params = $this->createParams($values);
-        echo "params: $params <br>";
         $sql_query = $this->buildQuery($action, $table, $values);
-        echo "query: $sql_query <br>";
         if ($statement = $this->connection->prepare($sql_query)) {
-            if (!empty($values)) {
-                $statement->bind_param($params, ...array_values($values));
-                $statement->execute();
-                $result = $statement->get_result();
-                $statement->close();
-                return $result;
-            } else {
-                $statement->close();
-                View::errorCode(500, 'SQL not result');
-                echo $this->connection->errno;
+            if ($statement->bind_param($params, ...array_values($values))) {
+                if ($statement->execute()) {
+                    $result = $statement->get_result();
+                    if ($result) {
+                        $result = mysqli_fetch_array($result);
+                    }
+                    else {
+                        if ($this->connection->errno == 0) {
+                            $result = true;
+                        }
+                    }
+                    $statement->close();
+                    return $result;
+                } else {
+                    $statement->close();
+                    View::errorCode(500, 'Не удалось выполнить запрос');
+                    echo $this->connection->errno . "<br>";
+                    echo $this->connection->error;
+                }
+            }
+            else {
+                View::errorCode(500, 'Не удалось подготовить привязать параметры');
+                echo $this->connection->errno . "<br>";
                 echo $this->connection->error;
             }
         }
         else {
-            View::errorCode(500, 'SQL query wrong');
-            echo $this->connection->errno;
+            View::errorCode(500, 'Не удалось подготовить запрос');
+            echo $this->connection->errno . "<br>";
             echo $this->connection->error;
         }
     }
@@ -76,10 +86,35 @@ class DataBase
             $keys = array_keys($values);
             for ($i = 0; $i < count($keys); $i++) {
                 $query .= $keys[$i] . '=?';
-                if ($i + 1 != count($keys)) {
-                    $query .= ' AND ';
-                } else {
+                if ($i + 1 == count($keys)) {
                     $query .= ';';
+                } else {
+                    $query .= ' AND ';
+                }
+            }
+        }
+        else if ($action == 'insert') {
+            $query = 'INSERT INTO ' . $table . '( ';
+            $keys = array_keys($values);
+            for ($i = 0; $i < count($keys); $i++) {
+                $query .= $keys[$i];
+                if ($i + 1 == count($keys)) {
+                    $query .= ' )';
+                } else {
+                    $query .= ', ';
+                }
+            }
+            $query .= ' VALUES( ';
+            $val = array_values($values);
+            for ($i = 0; $i < count($val); $i++) {
+                $keys = array_keys($values);
+                for ($i = 0; $i < count($keys); $i++) {
+                    $query .= '?';
+                    if ($i + 1 == count($keys)) {
+                        $query .= ' );';
+                    } else {
+                        $query .= ', ';
+                    }
                 }
             }
         }

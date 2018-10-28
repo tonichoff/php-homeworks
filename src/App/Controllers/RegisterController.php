@@ -3,19 +3,13 @@
 namespace App\Controllers;
 
 use App\DataBase\DataBase;
+use App\Authentication\Repository\UserRepository;
+use App\Authentication\User;
 
 class RegisterController extends Controller
 {
     public function actionShow($params)
     {
-        $db = new DataBase();
-        $action = 'find';
-        $values = [
-            'id' => 1,
-            'login' => 'admin'
-        ];
-        $tabel = 'Users';
-        $db->query($action, $tabel, $values);
         $this->_view->render('Регистрация');
     }
 
@@ -25,6 +19,7 @@ class RegisterController extends Controller
         $email = htmlentities($_POST['email']);
         $password = htmlentities($_POST['password']);
         $check_password = htmlentities($_POST['check_password']);
+
         $validate_data = true;
         if ($login == '') {
             echo 'Логин не должен быть пустым<br>';
@@ -42,9 +37,24 @@ class RegisterController extends Controller
             echo 'Пароли должы совпадать<br>';
             $validate_data = false;
         }
-        if ($validate_data) {
 
-            $this->_model->tryRegister($login, $email, $password);
+        if ($validate_data) {
+            $user_rep = new UserRepository();
+
+            $uniq = true;
+            if (gettype($user_rep->findByLogin($login)) != 'NULL') {
+                echo 'Пользователь с таким логином уже существует<br>';
+                $uniq = false;
+            }
+            if (gettype($user_rep->findByEmail($email)) != 'NULL') {
+                echo 'Пользователь с такой почтой уже существует<br>';
+                $uniq = false;
+            }
+
+            if ($uniq) {
+                $user = new User(0, $login, $password, $email);
+                $user_rep->save($user);
+            }
         }
     }
 }
