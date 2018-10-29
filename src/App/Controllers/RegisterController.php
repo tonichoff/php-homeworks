@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\DataBase\DataBase;
 use App\Authentication\Repository\UserRepository;
 use App\Authentication\User;
+use App\Authentication\Encoder\UserPasswordEncoder;
 
 class RegisterController extends Controller
 {
@@ -50,6 +51,9 @@ class RegisterController extends Controller
                 echo 'Пользователь с такой почтой уже существует<br>';
                 $uniq = false;
             }
+
+            $encoder = new UserPasswordEncoder();
+            $password = $encoder->encodePassword($password);
 
             if ($uniq) {
                 $user = new User(0, $login, $password, $email);
