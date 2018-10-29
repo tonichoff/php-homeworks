@@ -4,7 +4,7 @@ return [
     'GET' => [
         'login' => [
             'controller' => 'login',
-            'action' => 'login'
+            'action' => 'show'
         ],
 
         'register' => [
@@ -20,13 +20,18 @@ return [
         '' =>   [
             'controller' => 'main',
             'action' => 'index'
-        ]
+        ],
     ],
 
     'POST' => [
         'register' => [
             'controller' => 'register',
             'action' => 'register'
-        ]
-    ]
+        ],
+
+        'login' => [
+            'controller' => 'login',
+            'action' => 'login'
+        ],
+    ],
 ];

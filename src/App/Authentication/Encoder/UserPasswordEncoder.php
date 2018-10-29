@@ -12,6 +12,6 @@ class UserPasswordEncoder implements UserPasswordEncoderInterface
      * @return string
      */
     public function encodePassword(string $rawPassword, ?string $salt = null): string {
-        return password_hash($rawPassword, PASSWORD_BCRYPT);
+        return password_hash($rawPassword);
     }
 }
