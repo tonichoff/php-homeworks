@@ -57,7 +57,7 @@ class UserRepository implements UserRepositoryInterface
         ];
         $result = $this->db->query('insert', 'Users', $values);
         if ($result) {
-            echo 'zbs';
+            echo 'Пользователь сохранен';
         }
     }
 

@@ -15,7 +15,7 @@ class UserToken implements UserTokenInterface
 
     public function __construct($user = null)
     {
-        $this->user = user;
+        $this->user = $user;
     }
 
     public function getUser(): ?UserInterface
@@ -25,6 +25,6 @@ class UserToken implements UserTokenInterface
 
     public function isAnonymous()
     {
-        return gettype($this->user) == 'NULL';
+        return !isset($this->user) || gettype($this->user) == 'NULL';
     }
 }

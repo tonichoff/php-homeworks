@@ -4,45 +4,56 @@ namespace App\Controllers;
 
 use App\Authentication\Encoder\UserPasswordEncoder;
 use App\Authentication\Repository\UserRepository;
+use App\Authentication\Service\AuthenticationService;
 use App\DataBase\DataBase;
 
 class LoginController extends Controller
 {
     public function actionShow($parameters)
     {
-        $this->_view->render('Вход');
+        $this->_view->render('Вход', $parameters);
     }
 
     public function actionLogin($parameters)
     {
         $id = htmlentities($_POST['id']);
         $password = htmlentities($_POST['password']);
-        $validate_data = true;
-        if ($id == '') {
-            echo 'Идентификатор не должен быть пустым<br>';
-            $validate_data = false;
+
+        $errors = $this->validate(
+          [
+              'id' => $id,
+              'password' => $password,
+          ]
+        );
+
+        if ($errors) {
+            var_dump($errors);
         }
-        if ($password == '') {
-            echo 'Пароль не должен быть пустым<br>';
-            $validate_data = false;
+        else {
+            echo 'Всё классно';
         }
-        if ($validate_data) {
+    }
+
+    private function validate($values)
+    {
+        $errors = [];
+        extract($values);
+        if (!$id) {
+            $errors['id'] = "Поле 'Идентификатор' не должно быть пустым";
+        } else {
             $user_rep = new UserRepository();
             $user = $user_rep->findByLogin($id);
-            if (gettype($user) == 'NULL') {
+            if (!$user) {
                 $user = $user_rep->findByEmail($id);
-                if (gettype($user) == 'NULL') {
-                    echo 'Не правильный идентификатор или пароль';
+                if (!$user) {
+                    $errors['id'] = 'Нет пользователя с таким логином или почтой';
+                    return $errors;
                 }
             }
-            if (gettype($user) != 'NULL') {
-                if (password_verify($password, $user->getPassword())) {
-                    echo 'Добро пожаловать, ' .  $user->getLogin();
-                }
-                else {
-                    echo 'Не правильный идентификатор или пароль';
-                }
+            if (!password_verify($password, $user->getPassword())) {
+                $errors['password'] = "Не верный пароль";
             }
         }
+        return $errors;
     }
 }

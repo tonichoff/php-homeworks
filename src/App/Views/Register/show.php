@@ -31,16 +31,56 @@
 <!--    }-->
 <!--</style>-->
 
-<form method="POST">
+<script>
+    function checkInputRegister(e) {
+        e.preventDefault();
+        var email = $('#email').val();
+        var login = $('#login').val();
+        var pas = $('#password').val();
+        var check_pas = $('#check_password').val();
+        var $this = $($this);
+        $.ajax({
+             type: "POST",
+             url: "http://localhost:8080/api/check_input_register",
+             data: {
+                email: email,
+                 login: login,
+                 password: pas,
+                 check_password: check_pas
+                 }
+             }).done(function(result) {
+             console.log(result);
+             if (result) {
+                 var errors = jQuery.parseJSON(result);
+                 if (!errors.validate) {
+                     $('#email_mes').html(errors.email);
+                     $('#login_mes').html(errors.login);
+                     $('#pas_mes').html(errors.password);
+                     $('#check_pas_mes').html(errors.check_password);
+                 }
+                 else {
+                     var form = document.getElementById('reg_form');
+                     form.submit();
+                 }
+             }
+         });
+    }
+</script>
+
+<form method="POST" id="reg_form">
     <p>Почта</p>
-    <p><input type="text" name="email" /></p>
+    <p><input type="text" name="email" id="email"/></p>
+    <div id="email_mes"></div>
     <p>Логин</p>
-    <p><input type="text" name="login" /></p>
+    <p><input type="text" name="login" id="login"/></p>
+    <div id="login_mes"></div>
     <p>Пароль</p>
-    <p><input type="password" name="password" /></p>
+    <p><input type="password" name="password" id="password"/></p>
+    <div id="pas_mes"></div>
     <p>Повторите пароль</p>
-    <p><input type="password" name="check_password" /></p>
-    <p><input type="submit" value="Регистрация"></p>
+    <p><input type="password" name="check_password" id="check_password"/></p>
+    <div id="check_pas_mes"></div>
+    <p><input type="submit" value="Регистрация" onclick="checkInputRegister(event)"></p>
 </form>
 
 

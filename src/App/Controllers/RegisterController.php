@@ -21,44 +21,52 @@ class RegisterController extends Controller
         $password = htmlentities($_POST['password']);
         $check_password = htmlentities($_POST['check_password']);
 
-        $validate_data = true;
-        if ($login == '') {
-            echo 'Логин не должен быть пустым<br>';
-            $validate_data = false;
-        }
-        if ($email == '') {
-            echo 'Почта не должна быть пустой<br>';
-            $validate_data = false;
-        }
-        if ($password == '') {
-            echo 'Пароль не должен быть пустым<br>';
-            $validate_data = false;
-        }
-        if ($password != $check_password) {
-            echo 'Пароли должы совпадать<br>';
-            $validate_data = false;
-        }
+        $errors = $this->validate(
+            [
+                'login' => $login,
+                'email' => $email,
+                'password' => $password,
+                'check_password' => $check_password,
+            ]
+        );
 
-        if ($validate_data) {
-            $user_rep = new UserRepository();
-
-            $uniq = true;
-            if (gettype($user_rep->findByLogin($login)) != 'NULL') {
-                echo 'Пользователь с таким логином уже существует<br>';
-                $uniq = false;
-            }
-            if (gettype($user_rep->findByEmail($email)) != 'NULL') {
-                echo 'Пользователь с такой почтой уже существует<br>';
-                $uniq = false;
-            }
-
+        if ($errors) {
+            var_dump($errors);
+        }
+        else {
             $encoder = new UserPasswordEncoder();
             $password = $encoder->encodePassword($password);
 
-            if ($uniq) {
-                $user = new User(0, $login, $password, $email);
-                $user_rep->save($user);
+            $user = new User(0, $login, $password, $email);
+
+            $user_rep = new UserRepository();
+            $user_rep->save($user);
+            echo "Всё классно";
+        }
+    }
+
+    private function validate($values) {
+        extract($values);
+        $errors = [];
+        if (!$login) {
+            $errors['login'] = "Поле 'Логин' не должно быть пустым";
+        }
+        if (!$email) {
+            $errors['email'] = "Поле 'Почта' не должно быть пустым";
+        }
+        if ($password != $check_password) {
+            $errors['check_password'] = "Пароли должны совпадать";
+        }
+
+        if (!$errors) {
+            $user_rep = new UserRepository();
+            if ($user_rep->findByLogin($login)) {
+                $errors['login'] = 'Пользователь с таким логином уже существует';
+            }
+            if ($user_rep->findByEmail($email)) {
+                $errors['email'] = 'Пользователь с такой почтой уже существует';
             }
         }
+        return $errors;
     }
 }

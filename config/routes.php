@@ -33,5 +33,15 @@ return [
             'controller' => 'login',
             'action' => 'login'
         ],
+
+        'api/check_input_register' => [
+            'controller' => 'API',
+            'action' => 'checkInputRegister'
+        ],
+
+        'api/check_input_login' => [
+            'controller' => 'API',
+            'action' => 'checkInputLogin'
+        ],
     ],
 ];

@@ -21,10 +21,13 @@ class View {
             $view_path = ROOT. '/../src/App/Views/' . $this->_path . '.php';
             if (file_exists($view_path)) {
                 $content = $view_path;
+                $errors = $vars;
                 require $layout_path;
             }
             else {
                 View::errorCode(500, "I didn't find view file");
+                var_dump($vars);
+                echo $view_path;
             }
 
         }
