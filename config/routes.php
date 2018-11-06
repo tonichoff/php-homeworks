@@ -21,6 +21,11 @@ return [
             'controller' => 'main',
             'action' => 'index'
         ],
+
+        'search' => [
+            'controller' => 'search',
+            'action' => 'show'
+        ],
     ],
 
     'POST' => [
@@ -39,9 +44,9 @@ return [
             'action' => 'checkInputRegister'
         ],
 
-        'api/check_input_login' => [
-            'controller' => 'API',
-            'action' => 'checkInputLogin'
+        'search' => [
+            'controller' => 'search',
+            'action' => 'getResult'
         ],
     ],
 ];

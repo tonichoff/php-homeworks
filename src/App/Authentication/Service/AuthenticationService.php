@@ -15,32 +15,52 @@ use App\DataBase\DataBase;
 class AuthenticationService implements AuthenticationServiceInterface
 {
     private $db;
-    private $key;
 
     public function  __construct()
     {
         $this->db = new DataBase();
-        $this->key = 'iopdasojijioajscx,mzmc,z.xmiwqje';
     }
 
     public function authenticate($credentials)
     {
-
-
+        $result_of_query = $this->db->query('find', 'Tokens', ['token' => $credentials]);
+        $credentials = '';
+        if ($result_of_query) {
+            $cur_time = date('Y-m-d H:i:s', time());
+            if ($cur_time > $result_of_query['shelf_life']) {
+                $this->db->query('delete', 'Tokens', ['id' => $result_of_query['id']]);
+                unset($_COOKIE['auth_cookie']);
+            }
+            else {
+                $credentials = $result_of_query['token'];
+            }
+        }
+        return new UserToken($credentials);
     }
 
     public function generateCredentials(UserInterface $user)
     {
-        $cookie_structure = [
-            'login' => $user->getLogin(),
-            'password_hash' => $user->getPassword()
-        ];
+        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $chars .= "abcdefghijklmopqrstuvwxyz";
+        $chars .= "0123456789";
+        $chars .= "!@#$%^&*()";
+        $max = strlen($chars);
+        do {
+            $token = '';
+            for ($i = 0; $i < 64; $i++) {
+                $token .= $chars[random_int(0, $max - 1)];
+            }
+            $result = $this->db->query('find', 'Tokens', ['token' => $token]);
+        } while ($result);
 
-        $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $cipher = sodium_crypto_secretbox(json_encode($cookie_structure), $nonce, $this->key);
-        return base64_encode($nonce . $cipher);
+        $this->db->query('insert', 'Tokens',
+            [
+                'token' => $token,
+                'shelf_life' => date('Y-m-d H:i:s', time() + 60 * 5),
+                'user_id' => $user->getId(),
+            ]
+        );
 
-        // в куках лежит идентификатор сессии. хранение либо вбд,либо прям php
-
+        return $token;
     }
 }

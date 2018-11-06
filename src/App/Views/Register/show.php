@@ -38,7 +38,7 @@
         var login = $('#login').val();
         var pas = $('#password').val();
         var check_pas = $('#check_password').val();
-        var $this = $($this);
+        var $this = $(this);
         $.ajax({
              type: "POST",
              url: "http://localhost:8080/api/check_input_register",

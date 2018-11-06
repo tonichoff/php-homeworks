@@ -24,7 +24,7 @@ class UserRepository implements UserRepositoryInterface
     public function findById(int $id): ?UserInterface
     {
         $result = $this->db->query('find', 'Users', [ 'id' => $id ]);
-        if (gettype($result) != 'NULL') {
+        if ($result) {
             return new User($result['id'], $result['login'], $result['password'], $result['email']);
         }
         return null;
@@ -33,7 +33,7 @@ class UserRepository implements UserRepositoryInterface
     public function findByLogin(string $login): ?UserInterface
     {
         $result = $this->db->query('find', 'Users', [ 'login' => $login ]);
-        if (gettype($result) != 'NULL') {
+        if ($result) {
             return new User($result['id'], $result['login'], $result['password'], $result['email']);
         }
         return null;
@@ -42,7 +42,16 @@ class UserRepository implements UserRepositoryInterface
     public function findByEmail(string $email): ?UserInterface
     {
         $result = $this->db->query('find', 'Users', [ 'email' => $email ]);
-        if (gettype($result) != 'NULL') {
+        if ($result) {
+            return new User($result['id'], $result['login'], $result['password'], $result['email']);
+        }
+        return null;
+    }
+
+    public function findByBirthday(string $birthday): ?UserInterface
+    {
+        $result = $this->db->query('find', 'Users', [ 'birthday' => $birthday]);
+        if ($result) {
             return new User($result['id'], $result['login'], $result['password'], $result['email']);
         }
         return null;
@@ -54,6 +63,7 @@ class UserRepository implements UserRepositoryInterface
             'login'    => $user->getLogin(),
             'password' => $user->getPassword(),
             'email'    => $user->getEmail(),
+            'birthday' => $user->getBirthday(),
         ];
         $result = $this->db->query('insert', 'Users', $values);
         if ($result) {

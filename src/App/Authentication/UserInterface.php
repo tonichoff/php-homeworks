@@ -30,4 +30,5 @@ interface UserInterface
 	 * @return string
 	 */
 	public function getPassword(): string;
+	public function getBirthday(): string;
 }

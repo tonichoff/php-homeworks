@@ -30,37 +30,49 @@ class DataBase
     {
         $params = $this->createParams($values);
         $sql_query = $this->buildQuery($action, $table, $values);
-        if ($statement = $this->connection->prepare($sql_query)) {
-            if ($statement->bind_param($params, ...array_values($values))) {
-                if ($statement->execute()) {
-                    $result = $statement->get_result();
-                    if ($result) {
-                        $result = mysqli_fetch_array($result);
-                    }
-                    else {
-                        if ($this->connection->errno == 0) {
-                            $result = true;
+        if ($params == '' && $action == 'select_all') {
+            $rows = [];
+            $result = $this->connection->query($sql_query);
+            for ($i = 0; $i < $result->num_rows; $i++) {
+                mysqli_data_seek($result, $i);
+                $rows[$i] = mysqli_fetch_assoc($result);
+            }
+            return $rows;
+        }
+        else {
+            if ($statement = $this->connection->prepare($sql_query)) {
+                if ($statement->bind_param($params, ...array_values($values))) {
+                    if ($statement->execute()) {
+                        $result = $statement->get_result();
+                        if ($result) {
+                            $rows = [];
+                            for ($i = 0; $i < $result->num_rows; $i++) {
+                                $rows[$i] = mysqli_fetch_array($result);
+                            }
+                            $result = $rows;
+                        } else {
+                            if ($this->connection->errno == 0) {
+                                $result = true;
+                            }
                         }
+                        $statement->close();
+                        return $result;
+                    } else {
+                        $statement->close();
+                        View::errorCode(500, 'Не удалось выполнить запрос');
+                        echo $this->connection->errno . "<br>";
+                        echo $this->connection->error;
                     }
-                    $statement->close();
-                    return $result;
                 } else {
-                    $statement->close();
-                    View::errorCode(500, 'Не удалось выполнить запрос');
+                    View::errorCode(500, 'Не удалось подготовить привязать параметры');
                     echo $this->connection->errno . "<br>";
                     echo $this->connection->error;
                 }
-            }
-            else {
-                View::errorCode(500, 'Не удалось подготовить привязать параметры');
+            } else {
+                View::errorCode(500, 'Не удалось подготовить запрос');
                 echo $this->connection->errno . "<br>";
                 echo $this->connection->error;
             }
-        }
-        else {
-            View::errorCode(500, 'Не удалось подготовить запрос');
-            echo $this->connection->errno . "<br>";
-            echo $this->connection->error;
         }
     }
 
@@ -117,6 +129,12 @@ class DataBase
                     }
                 }
             }
+        }
+        else if ($action == 'delete') {
+            $query = 'DELETE FROM ' . $table . ' WHERE id=?';
+        }
+        else if ($action == 'select_all') {
+            $query = 'SELECT * FROM ' . $table;
         }
         return $query;
     }

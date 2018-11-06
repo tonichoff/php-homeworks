@@ -15,6 +15,7 @@ class User implements UserInterface
     private $login;
     private $password;
     private $email;
+    private $birthday;
 
     public function __construct($id = 0, $login, $password, $email)
     {
@@ -47,6 +48,11 @@ class User implements UserInterface
     public function getEmail(): string
     {
         return $this->email;
+    }
+
+    public function getBirthday(): string
+    {
+        return $this->birthday;
     }
 
 }

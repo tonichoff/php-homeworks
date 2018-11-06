@@ -8,23 +8,41 @@
 
 namespace App\Authentication;
 
+use App\Authentication\Repository\UserRepository;
+use App\DataBase\DataBase;
+use App\Authentication\Service\AuthenticationService;
 
 class UserToken implements UserTokenInterface
 {
-    private $user;
 
-    public function __construct($user = null)
+    private $credentials;
+    private $db;
+
+    public function __construct($credentials)
     {
-        $this->user = $user;
+        $this->credentials = $credentials;
+        $this->db = new DataBase();
     }
 
     public function getUser(): ?UserInterface
     {
-        return $this->user;
+        $result_of_query = $this->db->query('find', 'Tokens', ['token' => $this->credentials]);
+        if ($result_of_query) {
+            $cur_time = date('Y-m-d H:i:s', time());
+            if ($cur_time > $result_of_query['shelf_life']) {
+                $this->db->query('delete', 'Tokens', ['id' => $result_of_query['id']]);
+                unset($_COOKIE['auth_cookie']);
+            }
+            else {
+                $user_rep = new UserRepository();
+                return $user_rep->findById($result_of_query['user_id']);
+            }
+        }
+        return NULL;
     }
 
     public function isAnonymous()
     {
-        return !isset($this->user) || gettype($this->user) == 'NULL';
+        return empty($this->credentials);
     }
 }

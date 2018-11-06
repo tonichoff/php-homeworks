@@ -6,12 +6,19 @@ use App\Authentication\Encoder\UserPasswordEncoder;
 use App\Authentication\Repository\UserRepository;
 use App\Authentication\Service\AuthenticationService;
 use App\DataBase\DataBase;
+use App\Views\View;
 
 class LoginController extends Controller
 {
     public function actionShow($parameters)
     {
-        $this->_view->render('Вход', $parameters);
+        if (isset($_SESSION['user'])) {
+            $this->_view = new View($this->_route, 'auth');
+            $this->_view->render('Вход', $parameters);
+        }
+        else {
+            $this->_view->render('Вход', $parameters);
+        }
     }
 
     public function actionLogin($parameters)
@@ -27,10 +34,22 @@ class LoginController extends Controller
         );
 
         if ($errors) {
-            var_dump($errors);
+            echo "Ну вы не вошли, увы. Потом буду об этом сообщать нормально";
         }
         else {
-            echo 'Всё классно';
+            $user_rep = new UserRepository();
+            $auth_serv = new AuthenticationService();
+
+            $user = $user_rep->findByEmail($id);
+            if (!$user) {
+                $user = $user_rep->findByLogin($id);
+            }
+
+            $cred = $auth_serv->generateCredentials($user);
+
+            setcookie('auth_cookie', $cred);
+            $this->_view = new View($this->_route, 'auth');
+            $this->_view->render('Вход', $parameters);
         }
     }
 

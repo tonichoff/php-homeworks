@@ -6,11 +6,12 @@ class View {
 
     private $_path;
     private $_route;
-    private $_layout = 'default';
+    private $_layout;
 
-    public function __construct($route)
+    public function __construct($route, $layout='default')
     {
         $this->_route = $route;
+        $this->_layout = $layout;
         $this->_path = ucfirst($route['controller']) . '/' . $route['action'];
     }
 
@@ -21,7 +22,7 @@ class View {
             $view_path = ROOT. '/../src/App/Views/' . $this->_path . '.php';
             if (file_exists($view_path)) {
                 $content = $view_path;
-                $errors = $vars;
+                $table = $vars;
                 require $layout_path;
             }
             else {

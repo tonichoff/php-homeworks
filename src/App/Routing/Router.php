@@ -38,6 +38,7 @@ class Router
         else {
             View::errorCode(404);
         }
+        session_write_close();
     }
 
     private function match()

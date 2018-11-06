@@ -12,7 +12,7 @@
     <a href="http://localhost:8080/login">Вход</a>
     <a href="http://localhost:8080/register">Регистрация</a>
     <?php
-        extract($errors);
         require $content;
+
         ?>
 </body>

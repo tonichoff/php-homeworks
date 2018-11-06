@@ -51,6 +51,5 @@ class APIController extends Controller
         }
         $errors["validate"] = $validate;
         echo json_encode($errors);
-        exit();
     }
 }
